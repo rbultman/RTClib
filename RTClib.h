@@ -333,9 +333,12 @@ public:
   static void writeSqwPinMode(Ds3231SqwPinMode mode);
   bool setAlarm1(const DateTime &dt, Ds3231Alarm1Mode alarm_mode);
   bool setAlarm2(const DateTime &dt, Ds3231Alarm2Mode alarm_mode);
+  DateTime getAlarm1();
+  DateTime getAlarm2();
   void disableAlarm(uint8_t alarm_num);
   void clearAlarm(uint8_t alarm_num);
   bool alarmFired(uint8_t alarm_num);
+  bool alarmEnabled(uint8_t alarm_num);
   void enable32K(void);
   void disable32K(void);
   bool isEnabled32K(void);

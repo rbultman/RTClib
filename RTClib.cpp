@@ -1744,6 +1744,46 @@ bool RTC_DS3231::setAlarm2(const DateTime &dt, Ds3231Alarm2Mode alarm_mode) {
   return true;
 }
 
+DateTime RTC_DS3231::getAlarm1()
+{
+  uint8_t seconds;
+  uint8_t minutes;
+  uint8_t hours;
+  uint8_t date;
+
+  Wire.beginTransmission(DS3231_ADDRESS);
+  Wire._I2C_WRITE((byte)DS3231_ALARM1);
+  Wire.endTransmission();
+
+  Wire.requestFrom(DS3231_ADDRESS, 4);
+  seconds = bcd2bin(Wire._I2C_READ() & 0x7f);
+  minutes = bcd2bin(Wire._I2C_READ() & 0x7f);
+  hours = bcd2bin(Wire._I2C_READ() & 0x3f);
+  date = bcd2bin(Wire._I2C_READ() & 0x3f);
+
+  DateTime alarm = DateTime(0, 0, date, hours, minutes, seconds);
+  return alarm;
+}
+
+DateTime RTC_DS3231::getAlarm2()
+{
+  uint8_t minutes;
+  uint8_t hours;
+  uint8_t date;
+
+  Wire.beginTransmission(DS3231_ADDRESS);
+  Wire._I2C_WRITE((byte)DS3231_ALARM2);
+  Wire.endTransmission();
+
+  Wire.requestFrom(DS3231_ADDRESS, 3);
+  minutes = bcd2bin(Wire._I2C_READ() & 0x7f);
+  hours = bcd2bin(Wire._I2C_READ() & 0x3f);
+  date = bcd2bin(Wire._I2C_READ() & 0x3f);
+
+  DateTime alarm = DateTime(0, 0, date, hours, minutes, 0);
+  return alarm;
+}
+
 /**************************************************************************/
 /*!
     @brief  Disable alarm
@@ -1777,6 +1817,19 @@ void RTC_DS3231::clearAlarm(uint8_t alarm_num) {
 /**************************************************************************/
 bool RTC_DS3231::alarmFired(uint8_t alarm_num) {
   uint8_t status = read_i2c_register(DS3231_ADDRESS, DS3231_STATUSREG);
+  return (status >> (alarm_num - 1)) & 0x1;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Get enabled status of alarm
+        @param 	alarm_num Alarm number to check status
+        @return True if alarm has been fired otherwise false
+*/
+/**************************************************************************/
+bool RTC_DS3231::alarmEnabled(uint8_t alarm_num)
+{
+  uint8_t status = read_i2c_register(DS3231_ADDRESS, DS3231_CONTROL);
   return (status >> (alarm_num - 1)) & 0x1;
 }
 
